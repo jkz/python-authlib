@@ -40,7 +40,7 @@ class Service(Connector):
 
         return self.client.process_creds(**creds)
 
-class ClientInterface(interface.Client):
+class Client(interface.Client):
     id = None
     secret = None
 
