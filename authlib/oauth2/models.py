@@ -47,6 +47,7 @@ class Client(interface.Client):
     Service = Service
 
     def api(self, token=None, **params):
+        print foo
         return self.Service(self, token, **params)
 
     @property
