@@ -1,4 +1,4 @@
-from callm import Url
+from callm import URL
 
 from .. import interface
 
@@ -24,7 +24,7 @@ class Service(Connector):
     authorize_uri = None
 
     def get_redirect_url(self, **kwargs):
-        return Url(self.authorize_uri, **kwargs)
+        return URL(self.authorize_uri, **kwargs)
 
 class Auth(interface.Auth):
     """
@@ -38,9 +38,9 @@ class Auth(interface.Auth):
 
     def __call__(self, url, method, headers, body):
         """
-        Add an encoded username/password pair header to request 
-        """ 
-        if self.user is not None:    
+        Add an encoded username/password pair header to request
+        """
+        if self.user is not None:
             headers['Authorization'] = utils.encode_pair(self.user.username,
                     self.user.password)
 

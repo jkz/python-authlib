@@ -4,7 +4,7 @@ class Error(Exception):
 
 class Auth(object):
     """
-    Authorizes requests under satisfied conditions.
+    Authorizes requests under satisfactory conditions.
     """
     def __call__(self, url, method, headers, body):
         """
@@ -13,14 +13,15 @@ class Auth(object):
         return url, method, headers, body
 
 
-class User(object):
+class Token(object):
     """
-    Represents a user with a uid.
+    Represents a user authorization for an app.
     """
-    pass
+    user = None
+    app = None
 
 
-class Client(object):
+class App(object):
     """
     Represents an authenticating entity.
     """

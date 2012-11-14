@@ -1,5 +1,4 @@
 import urllib
-import urlparse
 
 from .errors import Error
 

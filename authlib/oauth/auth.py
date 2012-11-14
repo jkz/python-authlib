@@ -53,8 +53,8 @@ class Auth(interface.Auth):
     """
     An OAuth authorizer.
     """
-    def __init__(self, consumer, token=None, **params):
-        self.consumer = consumer
+    def __init__(self, app, token=None, **params):
+        self.app = app
         if token:
             self.token = token
         self.params = params
@@ -62,11 +62,11 @@ class Auth(interface.Auth):
     @property
     def signing_key(self):
         #TODO: sometime do this without +
-        key = percent_encode(self.consumer.secret) + '&'
+        key = percent_encode(self.app.secret) + '&'
         if hasattr(self, 'token'):
             key += percent_encode(self.token.oauth_token_secret)
         return key
-    
+
     def build_signature(self, msg):
         """Builds a hmac_sha1 hash for the message."""
         key = self.signing_key.encode('ascii')
@@ -80,7 +80,7 @@ class Auth(interface.Auth):
         header = {}
 
         # Add the basic oauth paramters
-        header['oauth_consumer_key'] = self.consumer.key
+        header['oauth_consumer_key'] = self.app.key
         header['oauth_signature_method'] = 'HMAC-SHA1'
         header['oauth_version'] = '1.0'
         header['oauth_timestamp'] = int(time.time())
@@ -127,7 +127,7 @@ class Auth(interface.Auth):
         other_params = {}
         other_params.update(dict(query_params))
         other_params.update(dict(body_params))
-        
+
         headers['Authorization'] = self.oauth_header(method, uri, **other_params)
 
         body = urllib.urlencode(body_params)

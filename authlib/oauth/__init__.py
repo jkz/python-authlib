@@ -1,4 +1,4 @@
-from .connectors import Connector
+from .api import API
 from .auth import Auth
 from .errors import Error
-from .models import Consumer, Token, Service
+from .models import App, Token
