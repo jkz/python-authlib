@@ -36,6 +36,7 @@ class App(object):
     def api(self):
         return self.API(auth=self.auth)
 
+
 class Token(object):
     """
     Represents a user authorization for an app.
@@ -44,7 +45,7 @@ class Token(object):
     app = None
 
     Auth = Auth
-    API = API
+    API = NotImplemented
 
     @property
     def auth(self):
