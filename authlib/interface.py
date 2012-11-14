@@ -13,6 +13,10 @@ class Auth(object):
         self.token = token
         self.options = options
 
+    def add_options(self, **options):
+        self.options.update(options)
+        return self
+
     def __call__(self, url, method, headers, body):
         """
         Return signed request paramters.
