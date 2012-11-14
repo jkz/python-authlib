@@ -2,7 +2,10 @@ class Error(Exception):
     pass
 
 class API(object):
-    pass
+    def add_options(self, **options):
+        self.options.update(options)
+        return self
+
 
 class Auth(object):
     """
@@ -12,10 +15,6 @@ class Auth(object):
         self.app = app
         self.token = token
         self.options = options
-
-    def add_options(self, **options):
-        self.options.update(options)
-        return self
 
     def __call__(self, url, method, headers, body):
         """
