@@ -9,9 +9,6 @@ class Auth(interface.Auth):
     authenticate and register end users. If an enduser is associated with this
     authenticator, it can authorize requests.
     """
-    def __init__(self, token=None):
-        self.token = token
-
     def __call__(self, method, uri, body='', headers={}):
         """
         Add a token parameter tot the query string.

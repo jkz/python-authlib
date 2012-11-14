@@ -53,12 +53,6 @@ class Auth(interface.Auth):
     """
     An OAuth authorizer.
     """
-    def __init__(self, app, token=None, **params):
-        self.app = app
-        if token:
-            self.token = token
-        self.params = params
-
     @property
     def signing_key(self):
         #TODO: sometime do this without +
@@ -91,7 +85,7 @@ class Auth(interface.Auth):
             header['oauth_token'] = self.token.oauth_token
 
         # Override default header and add additional header params
-        header.update(self.params)
+        header.update(self.options)
 
         #XXX: Sorting should be done prior to encoding!
         #XXX: Is that so?
