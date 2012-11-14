@@ -1,11 +1,6 @@
 class Error(Exception):
     pass
 
-class API(object):
-    def add_options(self, **options):
-        self.options.update(options)
-        return self
-
 
 class Auth(object):
     """
