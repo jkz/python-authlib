@@ -57,7 +57,7 @@ class Auth(interface.Auth):
     def signing_key(self):
         #TODO: sometime do this without +
         key = percent_encode(self.app.secret) + '&'
-        if self.token:
+        if hasattr(self, 'token'):
             key += percent_encode(self.token.oauth_token_secret)
         return key
 
@@ -81,7 +81,7 @@ class Auth(interface.Auth):
         header['oauth_nonce'] = random.getrandbits(64)
 
         # Add token if we're authorizing a user
-        if self.token:
+        if hasattr(self, 'token'):
             header['oauth_token'] = self.token.oauth_token
 
         # Override default header and add additional header params
