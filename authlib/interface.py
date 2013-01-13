@@ -22,11 +22,21 @@ class App(object):
     """
     Represents an authenticating entity.
     """
+    Auth = Auth
+    API = NotImplemented
+
+
     def authenticate(self, **creds):
         """
         -> uid
         """
         return NotImplementedError
+
+    def process_creds(**creds):
+        """
+        -> access_token
+        """
+        raise NotImplementedError
 
     @property
     def auth(self):
@@ -43,9 +53,6 @@ class Token(object):
     """
     user = None
     app = None
-
-    Auth = Auth
-    API = NotImplemented
 
     @property
     def auth(self):

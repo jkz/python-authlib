@@ -6,8 +6,12 @@ import base64
 import urlparse
 import urllib
 
-from .. import interface
+import callm
 
+from . import interface
+
+class Error(interface.Error):
+    pass
 
 def _utf8_str(s):
     """Convert unicode to utf-8."""
@@ -53,12 +57,22 @@ class Auth(interface.Auth):
     """
     An OAuth authorizer.
     """
+    def set_token(self, oauth_token, oauth_token_secret):
+        class DummyToken:
+            app = self.app
+            key = oauth_token
+            secret = oauth_token_secret
+        self.token = DummyToken
+
+    def set_verifier(self, verifier):
+        self.options['oauth_verifier'] = verifier
+
     @property
     def signing_key(self):
         #TODO: sometime do this without +
         key = percent_encode(self.app.secret) + '&'
-        if hasattr(self, 'token'):
-            key += percent_encode(self.token.oauth_token_secret)
+        if self.token:
+            key += percent_encode(self.token.secret)
         return key
 
     def build_signature(self, msg):
@@ -81,8 +95,8 @@ class Auth(interface.Auth):
         header['oauth_nonce'] = random.getrandbits(64)
 
         # Add token if we're authorizing a user
-        if hasattr(self, 'token'):
-            header['oauth_token'] = self.token.oauth_token
+        if self.token:
+            header['oauth_token'] = self.token.key
 
         # Override default header and add additional header params
         header.update(self.options)
@@ -132,4 +146,63 @@ class Auth(interface.Auth):
                                    parts.fragment))
 
         return method, uri, body, headers
+
+
+#TODO: detailed error messages
+#TODO: GET or POST?
+class Provider(callm.Connection):
+    """
+    Represents an authentication service.
+    """
+    request_token_path = None
+    access_token_path = None
+    authorize_uri = None
+    authenticate_uri = None
+
+    def get_request_token(self):
+        response = self.POST(self.request_token_path)
+        if response.status != 200:
+            raise Error('Invalid response while obtaining request token.')
+        return response.query
+
+    def get_access_token(self, key, secret, verifier):
+        self.auth.set_token(key, secret)
+        self.auth.set_verifier(verifier)
+        response = self.POST(self.access_token_path)
+        if response.status != 200:
+            raise Error('Invalid response while obtaining access token.')
+        query = response.query
+        token = dict((k, query.pop(k)) for k in (
+                'oauth_token', 'oauth_token_secret'))
+        return token, query
+
+    # TODO: If one is missing, use the other
+    def get_authenticate_url(self, **kwargs):
+        return callm.URL(self.authenticate_uri, **kwargs)
+
+    def get_authorize_url(self, **kwargs):
+        return callm.URL(self.authorize_uri, **kwargs)
+
+
+class App(interface.App):
+    Auth = Auth
+    OAuth = Provider
+
+    def oauth(self):
+        return self.OAuth(auth=self.auth)
+
+    '''
+    def __init__(self, key, secret):
+        self.key = key
+        self.secret = secret
+    '''
+
+class Token(interface.Token):
+    '''
+    def __init__(self, app, key, secret):
+        self.app = app
+        self.key = key
+        self.secret = secret
+    '''
+    pass
 
