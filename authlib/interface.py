@@ -6,41 +6,45 @@ class Auth(object):
     """
     Authorizes requests under satisfactory conditions.
     """
-    def __init__(self, app, token=None, **options):
-        self.app = app
+    def __init__(self, consumer, token=None, **options):
+        self.consumer = consumer
         self.token = token
         self.options = options
 
     def __call__(self, url, method, headers, body):
         """
-        Return signed request paramters.
+        Return signed request parameters.
         """
         return url, method, headers, body
 
 
-class App(object):
+class Consumer(object):
     """
     Represents an authenticating entity.
     """
+    # A class that authorizes requests by signing their parameters
     Auth = Auth
+
+    # A class that provides the authentication service
+    Provider = NotImplemented
+
+    # A class that executes authenticated calls
     API = NotImplemented
 
 
-    def authenticate(self, **creds):
+    def auth_process(self, **creds):
         """
         -> uid
         """
         return NotImplementedError
 
-    def process_creds(**creds):
-        """
-        -> access_token
-        """
-        raise NotImplementedError
-
     @property
     def auth(self):
         return self.Auth(self)
+
+    @property
+    def provider(self):
+        return self.Provider(auth=self.auth)
 
     @property
     def api(self):
@@ -49,17 +53,16 @@ class App(object):
 
 class Token(object):
     """
-    Represents a user authorization for an app.
+    Represents a user authorization for a consumer
     """
-    user = None
-    app = None
+    consumer = Consumer()
 
     @property
     def auth(self):
-        return self.app.Auth(self.app, self)
+        return self.consumer.Auth(self.consumer, self)
 
     @property
     def api(self):
-        return self.app.API(auth=self.auth)
+        return self.consumer.API(auth=self.auth)
 
 

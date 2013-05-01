@@ -1,1 +1,1 @@
-from .interface import Auth, App, Token, Error
+from .interface import Auth, Consumer, Token, Error

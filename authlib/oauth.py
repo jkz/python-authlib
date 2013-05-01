@@ -59,7 +59,6 @@ class Auth(interface.Auth):
     """
     def set_token(self, oauth_token, oauth_token_secret):
         class DummyToken:
-            app = self.app
             key = oauth_token
             secret = oauth_token_secret
         self.token = DummyToken
@@ -70,7 +69,7 @@ class Auth(interface.Auth):
     @property
     def signing_key(self):
         #TODO: sometime do this without +
-        key = percent_encode(self.app.secret) + '&'
+        key = percent_encode(self.consumer.secret) + '&'
         if self.token:
             key += percent_encode(self.token.secret)
         return key
@@ -84,11 +83,11 @@ class Auth(interface.Auth):
         sig = base64.b64encode(dig)
         return sig
 
-    def oauth_header(self, method, uri, **other_params):
+    def header(self, method, uri, **other_params):
         header = {}
 
         # Add the basic oauth paramters
-        header['oauth_consumer_key'] = self.app.key
+        header['oauth_consumer_key'] = self.consumer.key
         header['oauth_signature_method'] = 'HMAC-SHA1'
         header['oauth_version'] = '1.0'
         header['oauth_timestamp'] = int(time.time())
@@ -113,7 +112,7 @@ class Auth(interface.Auth):
         base_string = build_base_string(method, uri, params_string)
 
         # Build the signature and add it to the parameters
-        signature = self.build_signature(base_string)
+        signature = self.signature(base_string)
         header['oauth_signature'] = signature
 
         # Return the constructed authorization header
@@ -136,7 +135,7 @@ class Auth(interface.Auth):
         other_params.update(dict(query_params))
         other_params.update(dict(body_params))
 
-        headers['Authorization'] = self.oauth_header(method, uri, **other_params)
+        headers['Authorization'] = self.header(method, uri, **other_params)
 
         body = urllib.urlencode(body_params)
         uri = urlparse.urlunsplit((parts.scheme,
@@ -153,6 +152,8 @@ class Auth(interface.Auth):
 class Provider(callm.Connection):
     """
     Represents an authentication service.
+
+    The constructor requires at least a `host` and an `auth` object
     """
     request_token_path = None
     access_token_path = None
@@ -171,6 +172,7 @@ class Provider(callm.Connection):
         response = self.POST(self.access_token_path)
         if response.status != 200:
             raise Error('Invalid response while obtaining access token.')
+        return response.query
         query = response.query
         token = dict((k, query.pop(k)) for k in (
                 'oauth_token', 'oauth_token_secret'))
@@ -184,25 +186,29 @@ class Provider(callm.Connection):
         return callm.URL(self.authorize_uri, **kwargs)
 
 
-class App(interface.App):
+class ConsumerInterface(interface.Consumer):
     Auth = Auth
-    OAuth = Provider
+    Provider = Provider
 
-    def oauth(self):
-        return self.OAuth(auth=self.auth)
+    key = None
+    secret = None
 
-    '''
+    def provider(self):
+        return self.Provider(auth=self.auth)
+
+
+class Consumer(ConsumerInterface):
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
-    '''
 
-class Token(interface.Token):
-    '''
-    def __init__(self, app, key, secret):
-        self.app = app
+class TokenInterface(interface.Token):
+    key = None
+    secret = None
+
+
+class Token(TokenInterface):
+    def __init__(self, key, secret):
         self.key = key
         self.secret = secret
-    '''
-    pass
 
