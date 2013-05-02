@@ -173,10 +173,6 @@ class Provider(callm.Connection):
         if response.status != 200:
             raise Error('Invalid response while obtaining access token.')
         return response.query
-        query = response.query
-        token = dict((k, query.pop(k)) for k in (
-                'oauth_token', 'oauth_token_secret'))
-        return token, query
 
     # TODO: If one is missing, use the other
     def get_authenticate_url(self, **kwargs):
@@ -193,14 +189,12 @@ class ConsumerInterface(interface.Consumer):
     key = None
     secret = None
 
-    def provider(self):
-        return self.Provider(auth=self.auth)
-
 
 class Consumer(ConsumerInterface):
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
+
 
 class TokenInterface(interface.Token):
     key = None
