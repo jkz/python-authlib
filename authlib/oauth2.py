@@ -36,21 +36,21 @@ class Auth(interface.Auth):
         return method, uri, body, headers
 
 
-class Provider(callm.Connection):
+class Service(interface.Service):
     exchange_code_url = None
 
     def request_code(self, redirect_uri, **kwargs):
         """Return a redirect url"""
         query = dict(client_id=self.auth.consumer.key, redirect_uri=redirect_uri)
         query.update(kwargs)
-        return callm.URL(self.authenticate_uri, verbatim=False, **query)
+        return callm.URL(self.provider.authenticate_uri, verbatim=False, **query)
 
     def exchange_code(self, code, redirect_uri, **kwargs):
         """
         Trade a code for access credentials. They are returned as a callm
         response object, to be decoded by the caller.
         """
-        response = self.POST(
+        response = self.provider.POST(
                 self.exchange_code_url,
                 code=code,
                 redirect_uri=redirect_uri,
@@ -75,9 +75,6 @@ class ConsumerInterface(interface.Consumer):
 
     key = None
     secret = None
-
-    def provider(self):
-        return self.Provider(auth=self.auth)
 
     def __str__(self):
         return 'oauth_consumer(%s)' % self.key

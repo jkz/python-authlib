@@ -4,7 +4,7 @@ class Error(Exception):
 
 class Auth(object):
     """
-    Authorizes requests under satisfactory conditions.
+    Authorizes requests with given credentials
     """
     def __init__(self, consumer, token=None, **options):
         self.consumer = consumer
@@ -16,6 +16,11 @@ class Auth(object):
         Return signed request parameters.
         """
         return url, method, headers, body
+
+
+class Service(object):
+    def __init__(self, provider):
+        self.provider = provider
 
 
 class Consumer(object):
@@ -31,12 +36,14 @@ class Consumer(object):
     # A class that executes authenticated calls
     API = NotImplemented
 
-
-    def auth_process(self, **creds):
-        """
-        -> uid
-        """
+    def get_user(self, **creds):
+        """Return a user object for given credentials (or None)"""
         return NotImplementedError
+
+    def get_token(self, user):
+        """Return a token object for given user"""
+        return NotImplementedError
+
 
     @property
     def auth(self):

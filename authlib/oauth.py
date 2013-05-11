@@ -74,7 +74,7 @@ class Auth(interface.Auth):
             key += percent_encode(self.token.secret)
         return key
 
-    def build_signature(self, msg):
+    def signature(self, msg):
         """Builds a hmac_sha1 hash for the message."""
         key = self.signing_key.encode('ascii')
         raw = msg.encode('ascii')

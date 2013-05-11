@@ -1,4 +1,5 @@
 import base64
+import callm
 
 from . import interface
 
@@ -36,7 +37,7 @@ class Auth(interface.Auth):
         return url, method, headers, body
 
 
-class Provider(interface.Provider):
+class Provider(callm.Connection):
     def get_redirect_url(self, callback_url):
         return callback_url
 
